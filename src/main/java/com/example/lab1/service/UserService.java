@@ -4,7 +4,7 @@ import com.example.lab1.dto.UserDTO;
 import com.example.lab1.exceptions.ResourceNotFoundException;
 import com.example.lab1.model.User;
 import com.example.lab1.repositories.*;
-import com.example.lab1.utils.MappingUtils;
+import com.example.lab1.utils.UserMappingUtils;
 import com.example.lab1.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
 
-    private final MappingUtils mappingUtils;
+    private final UserMappingUtils userMappingUtils;
 
     private final ValidationUtils validationUtils;
 
@@ -28,7 +28,7 @@ public class UserService {
                        InvalidityRepository invalidityRepository,
                        NationalityRepository nationalityRepository) {
         this.userRepository = userRepository;
-        this.mappingUtils = new MappingUtils(cityRepository, familyStatusRepository, invalidityRepository, nationalityRepository);
+        this.userMappingUtils = new UserMappingUtils(cityRepository, familyStatusRepository, invalidityRepository, nationalityRepository);
         this.validationUtils = new ValidationUtils(userRepository);
     }
 
@@ -36,9 +36,9 @@ public class UserService {
     public UserDTO createUser(UserDTO userDTO) {
 
         if(validationUtils.isUserValidCreate(userDTO)) {
-            User user = mappingUtils.mapToClient(userDTO);
+            User user = userMappingUtils.mapToClient(userDTO);
             User savedUser = this.userRepository.save(user);
-            return mappingUtils.mapToUserDto(savedUser);
+            return userMappingUtils.mapToUserDto(savedUser);
         }
         else
         {
@@ -48,7 +48,7 @@ public class UserService {
 
     public List<UserDTO> getUsers(){
         return this.userRepository.findAll().stream()
-                .map(mappingUtils::mapToUserDto).sorted((a, b) -> a.getLastname().compareToIgnoreCase(b.getLastname())).collect(Collectors.toList());
+                .map(userMappingUtils::mapToUserDto).sorted((a, b) -> a.getLastname().compareToIgnoreCase(b.getLastname())).collect(Collectors.toList());
     }
 
     public UserDTO getUser(Long id){
@@ -56,33 +56,29 @@ public class UserService {
                 ()-> new ResourceNotFoundException("User not found")
         );
 
-        return  mappingUtils.mapToUserDto(user);
+        return  userMappingUtils.mapToUserDto(user);
     }
 
     public UserDTO updateUser(UserDTO newUser, Long id){
         return this.userRepository.findById(id)
                 .map(user -> {
                     if(validationUtils.isUserValidUpdate(newUser)) {
-                        System.out.println("Yes");
-                        user = mappingUtils.mapToClient(newUser);
-                        return mappingUtils.mapToUserDto(this.userRepository.save(user));
+                        user = userMappingUtils.mapToClient(newUser);
+                        return userMappingUtils.mapToUserDto(this.userRepository.save(user));
                     }
                     else
                     {
-                        System.out.println("No");
                         return null;
                     }
                 })
                 .orElseGet(()->{
                     newUser.setId(id);
                     if(validationUtils.isUserValidCreate(newUser)) {
-                        System.out.println("Yes2");
-                        User user = mappingUtils.mapToClient(newUser);
-                        return mappingUtils.mapToUserDto(this.userRepository.save(user));
+                        User user = userMappingUtils.mapToClient(newUser);
+                        return userMappingUtils.mapToUserDto(this.userRepository.save(user));
                     }
                     else
                     {
-                        System.out.println("No2");
                         return null;
                     }
                 });
