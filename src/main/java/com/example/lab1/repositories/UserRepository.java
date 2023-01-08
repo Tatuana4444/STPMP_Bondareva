@@ -1,6 +1,5 @@
 package com.example.lab1.repositories;
 
-import com.example.lab1.model.Nationality;
 import com.example.lab1.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

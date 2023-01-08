@@ -71,18 +71,18 @@ class UserInfo extends Component{
                     <h3>Список клиентов</h3>
                     <Table className="table">
                         <thead>
-                            <tr>
-                                <th>Фамилия</th>
-                                <th>Имя</th>
-                                <th>Отчество</th>
-                                <th>Дата рождения</th>
-                                <th>Серия паспорта</th>
-                                <th>№ паспорта</th>
-                                <th>Идент. номер</th>
-                                <th>Телефон дом</th>
-                                <th>Телефон моб</th>
-                                <th>E-mail</th>
-                            </tr>
+                        <tr>
+                            <th>Фамилия</th>
+                            <th>Имя</th>
+                            <th>Отчество</th>
+                            <th>Дата рождения</th>
+                            <th>Серия паспорта</th>
+                            <th>№ паспорта</th>
+                            <th>Идент. номер</th>
+                            <th>Телефон дом</th>
+                            <th>Телефон моб</th>
+                            <th>E-mail</th>
+                        </tr>
                         </thead>
                         <tbody>
                         {userList}

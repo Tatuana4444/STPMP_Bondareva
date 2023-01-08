@@ -1,5 +1,7 @@
 package com.example.lab1.utils;
 
+import com.example.lab1.dto.AccountDTO;
+import com.example.lab1.model.Account;
 import com.example.lab1.model.User;
 import com.example.lab1.dto.UserDTO;
 import com.example.lab1.repositories.CityRepository;
@@ -11,7 +13,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class MappingUtils {
+public class UserMappingUtils implements IMappingUtils<User, UserDTO>{
 
     private final CityRepository cityRepository;
     private final FamilyStatusRepository familyStatusRepository;
@@ -20,14 +22,15 @@ public class MappingUtils {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public MappingUtils(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository) {
+    public UserMappingUtils(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository) {
         this.cityRepository = cityRepository;
         this.familyStatusRepository = familyStatusRepository;
         this.invalidityRepository = invalidityRepository;
         this.nationalityRepository = nationalityRepository;
     }
 
-    public UserDTO mapToUserDto(User user){
+    @Override
+    public UserDTO mapToDto(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setLastname(user.getLastname());
@@ -57,8 +60,8 @@ public class MappingUtils {
         return dto;
     }
 
-    public User mapToClient(UserDTO dto){
-
+    @Override
+    public User mapToEntity(UserDTO dto) {
         User user = new User();
         user.setId(dto.getId());
         user.setLastname(dto.getLastname());

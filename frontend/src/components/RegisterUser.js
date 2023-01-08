@@ -243,7 +243,8 @@ class RegisterUser extends Component{
     birthdayHandler =(e)=>{
         this.handleChange(e)
         let error = ''
-        if( new Date() < new Date(e.target.value) && new Date(new Date() - new Date(e.target.value)).toISOString().slice(0, 4) - 1970 < 18){
+        if( new Date() < new Date(e.target.value)
+            && new Date(new Date() - new Date(e.target.value)).toISOString().slice(0, 4) - 1970 < 18){
             error = "Клиент должн быть совершеннолетним"
         }
 
@@ -680,7 +681,7 @@ class RegisterUser extends Component{
     }
 
     render() {
-        const title = <h2>{this.state.item.id ? 'Edit Client' : 'Add Client'}</h2>;
+        const title = <h2>{this.state.item.id ? 'Редактирование клиента' : 'Создание клиента'}</h2>;
 
         return(
             <div>
@@ -1026,7 +1027,7 @@ class RegisterUser extends Component{
                             </div>
                         </div>
                         <br/>
-                        <Button color="primary" type="submit" disabled=
+                        <Button color="primary" type="submit" style={submitStyle} disabled=
                                 {  this.state.lastnameError
                                 || this.state.firstnameError
                                 || this.state.surnameError
@@ -1047,13 +1048,20 @@ class RegisterUser extends Component{
                                 || this.state.nationalityError
                                 || this.state.invalidityError
                             }>Save</Button>{' '}
-                        <Button color="secondary"><Link to="/">Cancel</Link></Button>
+                        <Button color="secondary" style={submitStyle} ><Link to="/">Cancel</Link></Button>
                         <br/>
                     </form>
                 </Container>
             </div>
         )
     }
+}
+
+const submitStyle = {
+    flex:'5',
+    padding:'5px',
+    margin:'50px 0px 0px 0px',
+    width:'20%'
 }
 
 const checkbox ={

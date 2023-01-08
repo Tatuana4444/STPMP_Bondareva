@@ -7,7 +7,11 @@ module.exports = {
     mode: 'development',
     output: {
         path: __dirname,
-        filename: './src/main/resources/static/built/bundle.js'
+        filename: './src/main/resources/static/built/bundle.js',
+        publicPath: '/',
+    },
+    devServer: {
+        historyApiFallback: true
     },
     module: {
         rules: [

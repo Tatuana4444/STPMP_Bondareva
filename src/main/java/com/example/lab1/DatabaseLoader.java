@@ -1,7 +1,9 @@
 package com.example.lab1;
 
+import com.example.lab1.dto.ContractDTO;
 import com.example.lab1.model.*;
 import com.example.lab1.repositories.*;
+import com.example.lab1.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,14 +19,24 @@ public class DatabaseLoader implements CommandLineRunner {
     private final InvalidityRepository invalidityRepository;
     private final NationalityRepository nationalityRepository;
     private final UserRepository userRepository;
+    private final AccountTypeRepository accountTypeRepository;
+    private final ContractTypeRepository contractTypeRepository;
+    private final CurrencyRepository currencyRepository;
+    private final AccountRepository accountRepository;
+    private final ContractService contractService;
 
     @Autowired
-    public DatabaseLoader(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository, UserRepository userRepository) {
+    public DatabaseLoader(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository, UserRepository userRepository, AccountTypeRepository accountTypeRepository, ContractTypeRepository contractTypeRepository, CurrencyRepository currencyRepository, AccountRepository accountRepository, ContractService contractService) {
         this.cityRepository = cityRepository;
         this.familyStatusRepository = familyStatusRepository;
         this.invalidityRepository = invalidityRepository;
         this.nationalityRepository = nationalityRepository;
         this.userRepository = userRepository;
+        this.accountTypeRepository = accountTypeRepository;
+        this.contractTypeRepository = contractTypeRepository;
+        this.currencyRepository = currencyRepository;
+        this.accountRepository = accountRepository;
+        this.contractService = contractService;
     }
 
     public void init()
@@ -34,11 +46,112 @@ public class DatabaseLoader implements CommandLineRunner {
         initInvalidities();
         initNationalities();
         initUsers();
+        initContractTypes();
+        initAccountTypes();
+        initCurrencies();
+        initAccount();
+        initDeposits();
+    }
+
+    private void initDeposits() {
+        Calendar endDate = Calendar.getInstance();
+        endDate.add(Calendar.DATE, 7);
+        ContractDTO contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-01-15",
+                "Кредит аннуитетный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+        /*contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-01-15",
+                "Депозит отзывный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+       /* ContractDTO contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-02-08",
+                "Депозит отзывный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-02-08",
+                "Кредит аннуитетный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);*/
+    }
+
+    private void initAccount() {
+        Account bankAccount = new Account(
+                accountTypeRepository.findByName("Активный").getId(),
+                "7327000000000",
+                "1724",
+                0,
+                0,
+                0);
+        accountRepository.save(bankAccount);
+        Account cashAccount = new Account(
+                accountTypeRepository.findByName("Пассивный").getId(),
+                "1010000000000",
+                "1724",
+                0,
+                0,
+                100000000000.0);
+        accountRepository.save(cashAccount);
     }
 
     @Override
     public void run(String... strings) throws Exception {
         init();
+    }
+
+    private void initCurrencies() {
+        Currency currency = new Currency("Br", 1);
+        currencyRepository.save(currency);
+        currency = new Currency("USD", 2.5);
+        currencyRepository.save(currency);
+        currency = new Currency("EUR", 2.8);
+        currencyRepository.save(currency);
+    }
+
+    private void initContractTypes() {
+        ContractType contractType = new ContractType("Кредит аннуитетный");
+        contractTypeRepository.save(contractType);
+        contractType = new ContractType("Депозит отзывный");
+        contractTypeRepository.save(contractType);
+    }
+
+    private void initAccountTypes() {
+        AccountType accountType = new AccountType("Активный");
+        accountTypeRepository.save(accountType);
+        accountType = new AccountType("Пассивный");
+        accountTypeRepository.save(accountType);
     }
 
     private void initUsers() {
