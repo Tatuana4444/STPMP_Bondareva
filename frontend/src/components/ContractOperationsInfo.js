@@ -12,7 +12,6 @@ class ContractOperationsInfo extends Component{
     }
 
     componentDidMount() {
-        console.log(this.props.match.params.id)
         if (this.props.match.params.id !== undefined) {
             axios.get(`/operationHistories/contract/${this.props.match.params.id}`)
                 .then(response => {

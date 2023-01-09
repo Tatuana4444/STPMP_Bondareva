@@ -31,7 +31,6 @@ class ATM_Operations_MobilePayment extends Component{
 
     onSubmit(e){
         e.preventDefault();
-        console.log(this.state)
         this.props.history.push({pathname: '/ATM/Operations/Mobile/Payment/Pay',
             state: {card: this.state.card, mobile:  this.state.mobile, mobileNumber: this.state.mobileNum}})
     }
@@ -40,9 +39,6 @@ class ATM_Operations_MobilePayment extends Component{
     }
 
     mobilePhoneHandler =(e)=>{
-        console.log(this.state)
-        console.log(this.state.mobileNum)
-        console.log(e.target.value)
         this.setState({mobileNum: e.target.value})
         let error = ''
         if(e.target.value === ''){

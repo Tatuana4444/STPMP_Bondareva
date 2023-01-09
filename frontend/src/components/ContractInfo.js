@@ -40,7 +40,6 @@ class ContractInfo extends Component{
         }
 
         const contractList = contracts.map(contract => {
-            console.log(contract)
             return <tr key={contract.id}>
                 <td><Link to={"/agreements/details/" + contract.id}>{contract.id}</Link></td>
                 <td>{contract.user}</td>

@@ -35,7 +35,6 @@ class ContractInfo extends Component{
         }
 
         const accountList = accounts.map(account => {
-            console.log(account)
             return <tr key={account.id}>
                 <td>{account.accountNumber}</td>
                 <td>{account.accountTypeId}</td>

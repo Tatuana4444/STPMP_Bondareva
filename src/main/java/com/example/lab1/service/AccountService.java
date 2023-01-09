@@ -45,7 +45,6 @@ public class AccountService {
 
         Card card = new Card(0L, cardService.generateCardNumber(), cardService.generatePIN(), savedAccount.getAccountNumber());
         cardRepository.save(card);
-        System.out.println("Ката создана");
         return accountMappingUtils.mapToDto(savedAccount);
     }
 
@@ -65,7 +64,6 @@ public class AccountService {
 
     public AccountDTO getAccount(String accountNum){
         Account account = this.accountRepository.findByAccountNumber(accountNum);
-        System.out.println(account.getAccountNumber());
         return  accountMappingUtils.mapToDto(account);
     }
 

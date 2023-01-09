@@ -59,7 +59,6 @@ class CreateContract extends Component{
         if (this.props.match.params.id !== 'new') {
             axios.get(`/contracts/${this.props.match.params.id}`)
                 .then(response => {
-                    console.log(response.data)
                     this.setState({
                         contract: response.data,
                         startDateError:'',
@@ -212,7 +211,6 @@ class CreateContract extends Component{
             error = "Поле Сумма вклада не может быть пустым"
         }
 
-        console.log(e.target.value)
         if(Number(e.target.value) <= 100){
             error = "Сумма должна быть больше или равнв 100"
         }
@@ -236,7 +234,6 @@ class CreateContract extends Component{
     }
 
     blurHandler =(e) => {
-console.log(this.state)
         if(e.target.name === 'startDate')
         {
             this.setState({startDateDirty: true})

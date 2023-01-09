@@ -26,11 +26,11 @@ class ATM_Operations_Mobile extends Component{
         this.props.history.push({pathname: '/ATM/Operations/Mobile/Payment', state: {card: this.state.card, mobile: name}})
     }
 
-    onLifePayment(e){
+    onLifePayment(){
         this.onPayment('Life')
     }
 
-    onA1Payment(e){
+    onA1Payment(){
         this.onPayment('A1')
     }
     
@@ -47,7 +47,7 @@ class ATM_Operations_Mobile extends Component{
                     <h5 style={margin_cards}>Выберите мобильного оператора:</h5>
                     <Button style={margin_cards} color="primary" onClick={this.onMTCPayment.bind(this)}>MTC</Button>
                     <br/>
-                    <Button style={margin_cards} color="primary" nClick={this.onLifePayment.bind(this)}>Life</Button>
+                    <Button style={margin_cards} color="primary" oClick={this.onLifePayment.bind(this)}>Life</Button>
                     <br/>
                     <Button style={margin_cards} color="primary" onClick={this.onA1Payment.bind(this)}>A1</Button>
                     <br/>

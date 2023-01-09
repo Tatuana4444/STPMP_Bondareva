@@ -9,7 +9,6 @@ class ATM_Operations_MobilePaymentPay extends Component{
 
     constructor(props) {
         super(props);
-        console.log(props)
         if(props.history.location.state !== undefined && props.history.location.state.card !== undefined) {
             this.state = {
                 card: props.history.location.state.card,
