@@ -3,6 +3,7 @@ package com.example.lab1.service;
 import com.example.lab1.dto.ContractDTO;
 import com.example.lab1.exceptions.ResourceNotFoundException;
 import com.example.lab1.model.Account;
+import com.example.lab1.model.Card;
 import com.example.lab1.model.Contract;
 import com.example.lab1.repositories.*;
 import com.example.lab1.utils.ContractMappingUtils;
@@ -23,6 +24,8 @@ public class ContractService {
     private final AccountTypeRepository accountTypeRepository;
 
     private final OperationHistoryService operationHistoryService;
+    private final CardService cardService;
+    private final CardRepository cardRepository;
 
     @Autowired
     public ContractService(ContractRepository contractRepository,
@@ -31,11 +34,13 @@ public class ContractService {
                            CurrencyRepository currencyRepository,
                            AccountRepository accountRepository,
                            AccountTypeRepository accountTypeRepository,
-                           OperationHistoryService operationHistoryService) {
+                           OperationHistoryService operationHistoryService, CardService cardService, CardRepository cardRepository) {
         this.contractRepository = contractRepository;
         this.accountRepository = accountRepository;
         this.accountTypeRepository = accountTypeRepository;
         this.operationHistoryService = operationHistoryService;
+        this.cardService = cardService;
+        this.cardRepository = cardRepository;
         this.contractMappingUtils = new ContractMappingUtils(contractTypeRepository, userRepository, currencyRepository, accountRepository);
     }
 
@@ -46,6 +51,8 @@ public class ContractService {
         long percentAccountId = createAccount("Пассивный", "2400", contractDTO.getContractType());
         contractMappingUtils.setCurrentAccountId(currentAccountId);
         contractMappingUtils.setPercentAccountId(percentAccountId);
+
+
         Contract contract = contractMappingUtils.mapToEntity(contractDTO);
         Contract savedContract = this.contractRepository.save(contract);
 
@@ -68,6 +75,8 @@ public class ContractService {
         account.setCredit(0);
         account.setSaldo(0);
         account = accountRepository.save(account);
+        Card card = new Card(0L, cardService.generateCardNumber(), cardService.generatePIN(), account.getAccountNumber());
+        cardRepository.save(card);
         return account.getId();
     }
 

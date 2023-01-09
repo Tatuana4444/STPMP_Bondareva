@@ -8,7 +8,7 @@ class ContractInfo extends Component{
 
     constructor(props) {
         super(props);
-        this.state = {contracts: []};
+        this.state = {contracts: [], isWithdrawalThroughCash: false};
     }
 
     componentDidMount() {
@@ -17,7 +17,19 @@ class ContractInfo extends Component{
             {
                 this.setState({contracts:response.data});
             })
+        axios.get('/config/isWithdrawalThroughCash')
+            .then(response =>
+            {
+                this.setState({isWithdrawalThroughCash:response.data});
+            })
 
+    }
+    setWithdrawalThroughCash(){
+        axios.put('/config/setWithdrawalThroughCash/' + !this.state.isWithdrawalThroughCash)
+            .then(response =>
+            {
+                this.setState({isWithdrawalThroughCash:response.data});
+            })
     }
 
     render() {
@@ -73,6 +85,14 @@ class ContractInfo extends Component{
                     <div className="float-right">
                         <Link className="btn btn-default" to="/agreements/new">Добавить контракт</Link>
                     </div>
+                    <input
+                        type="checkbox"
+                        id="subscribeNews"
+                        name="subscribe"
+                        checked={this.state.isWithdrawalThroughCash}
+                        onClick={this.setWithdrawalThroughCash.bind(this)}
+                        value="newsletter"/>
+                    <label htmlFor="subscribeNews">Включить вывод финансов через кассу</label>
                 </Container>
             </div>
         );

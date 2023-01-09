@@ -8,6 +8,8 @@ import com.example.lab1.repositories.AccountTypeRepository;
 import com.example.lab1.repositories.ContractRepository;
 import com.example.lab1.repositories.UserRepository;
 
+import java.util.Optional;
+
 public class AccountMappingUtils implements IMappingUtils<Account, AccountDTO>{
 
     private final AccountTypeRepository accountTypeRepository;
@@ -31,15 +33,15 @@ public class AccountMappingUtils implements IMappingUtils<Account, AccountDTO>{
         dto.setCredit(Math.round(account.getCredit()*100d)/100d);
         dto.setDebit(Math.round(account.getDebit()*100d)/100d);
         dto.setSaldo(Math.round(account.getSaldo()*100d)/100d);
-        Contract contract = contractRepository.findByCurrentAccountId(account.getId());
-        if(contract == null) {
+        Optional<Contract> contract = contractRepository.findByCurrentAccountId(account.getId());
+        if(!contract.isPresent()) {
             contract = contractRepository.findByPersentAccountId(account.getId());
         }
 
-        if(contract != null){
-            User user = userRepository.findById(contract.getUserId()).get();
+        if(contract.isPresent()){
+            User user = userRepository.findById(contract.get().getUserId()).get();
             dto.setUser(user.getLastname() + ' ' + user.getFirstname() + ' ' + user.getSurname());
-            dto.setContractId(contract.getId().toString());
+            dto.setContractId(contract.get().getId().toString());
         }
         return dto;
     }

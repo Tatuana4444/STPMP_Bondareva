@@ -2,10 +2,7 @@ package com.example.lab1.service;
 
 import com.example.lab1.dto.OperationHistoryDTO;
 import com.example.lab1.exceptions.ResourceNotFoundException;
-import com.example.lab1.model.Account;
-import com.example.lab1.model.Contract;
-import com.example.lab1.model.Currency;
-import com.example.lab1.model.OperationHistory;
+import com.example.lab1.model.*;
 import com.example.lab1.repositories.*;
 import com.example.lab1.utils.OperationHistoryMappingUtils;
 import com.example.lab1.utils.IMappingUtils;
@@ -29,17 +26,20 @@ private final AccountRepository accountRepository;
     private Calendar currentDate = Calendar.getInstance();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private final ContractRepository contractRepository;
+    private final ConfigRepository configRepository;
+
     @Autowired
     public OperationHistoryService(OperationHistoryRepository operationHistoryRepository,
                                    ContractTypeRepository contractTypeRepository,
                                    AccountRepository accountRepository,
                                    CurrencyRepository currencyRepository,
-                                   ContractRepository contractRepository) {
+                                   ContractRepository contractRepository, ConfigRepository configRepository) {
         this.operationHistoryRepository = operationHistoryRepository;
         this.accountRepository = accountRepository;
         this.contractTypeRepository = contractTypeRepository;
         this.currencyRepository = currencyRepository;
         this.contractRepository = contractRepository;
+        this.configRepository = configRepository;
         this.operationHistoryMappingUtils = new OperationHistoryMappingUtils(accountRepository, currencyRepository);
         currentDate.set(Calendar.HOUR, 0);
         currentDate.set(Calendar.HOUR_OF_DAY, 0);
@@ -268,6 +268,7 @@ private final AccountRepository accountRepository;
         Account cashAccount = accountRepository.findByAccountNumber("7327000000000");
         Account persentAccount = accountRepository.findById(contract.getPersentAccountId()).get();
         Currency currency = currencyRepository.findById(contract.getCurrencyId()).get();
+        Config config = this.configRepository.findAll().get(0);
         OperationHistory operation;
         if(contract.getStartDate().compareTo(currentDate) <= 0
                 && contract.getEndDate().compareTo(currentDate) >= 0){
@@ -307,34 +308,36 @@ private final AccountRepository accountRepository;
 
             if (depositPeriod == period || contract.getEndDate().equals(currentDate))
             {
-                //Перевод % в кассу
-                cashAccount.setDebit(cashAccount.getDebit() + charge * currency.getExchangeRate() * period);
-                accountRepository.save(cashAccount);
+                if(config.isWithdrawalThroughCash()) {
+                    //Перевод % в кассу
+                    cashAccount.setDebit(cashAccount.getDebit() + charge * currency.getExchangeRate() * period);
+                    accountRepository.save(cashAccount);
 
-                persentAccount.setDebit(persentAccount.getDebit() - charge * period);
-                accountRepository.save(persentAccount);
+                    persentAccount.setDebit(persentAccount.getDebit() - charge * period);
+                    accountRepository.save(persentAccount);
 
-                operation = new OperationHistory(
-                        contract.getPersentAccountId(),
-                        cashAccount.getId(),
-                        charge * period,
-                        "Перевод % в кассу",
-                        currentDate,
-                        contract.getCurrencyId());
-                operationHistoryRepository.save(operation);
+                    operation = new OperationHistory(
+                            contract.getPersentAccountId(),
+                            cashAccount.getId(),
+                            charge * period,
+                            "Перевод % в кассу",
+                            currentDate,
+                            contract.getCurrencyId());
+                    operationHistoryRepository.save(operation);
 
-                //Вывод % из кассы
-                cashAccount.setCredit(cashAccount.getCredit() - charge * currency.getExchangeRate() * period);
-                accountRepository.save(cashAccount);
+                    //Вывод % из кассы
+                    cashAccount.setCredit(cashAccount.getCredit() - charge * currency.getExchangeRate() * period);
+                    accountRepository.save(cashAccount);
 
-                operation = new OperationHistory(
-                        cashAccount.getId(),
-                        0,
-                        charge * period,
-                        "Вывод % из кассы",
-                        currentDate,
-                        contract.getCurrencyId());
-                operationHistoryRepository.save(operation);
+                    operation = new OperationHistory(
+                            cashAccount.getId(),
+                            0,
+                            charge * period,
+                            "Вывод % из кассы",
+                            currentDate,
+                            contract.getCurrencyId());
+                    operationHistoryRepository.save(operation);
+                }
             }
         }
 
@@ -349,6 +352,7 @@ private final AccountRepository accountRepository;
         Currency currency = currencyRepository.findById(contract.getCurrencyId()).get();
         Account currentAccount = accountRepository.findById(contract.getCurrentAccountId()).get();
         Account cashAccount = accountRepository.findByAccountNumber("7327000000000");
+        Config config = this.configRepository.findAll().get(0);
 
         //Окончание депозита
         bankAccount.setDebit(bankAccount.getDebit() - contract.getSum() * currency.getExchangeRate());
@@ -363,36 +367,38 @@ private final AccountRepository accountRepository;
                 currentDate,
                 contract.getCurrencyId());
         operationHistoryRepository.save(operation);
+        if(config.isWithdrawalThroughCash()) {
 
-        //Перевод депозита в кассу
+            //Перевод депозита в кассу
 
-        cashAccount.setDebit(cashAccount.getDebit() + contract.getSum() * currency.getExchangeRate());
-        accountRepository.save(cashAccount);
+            cashAccount.setDebit(cashAccount.getDebit() + contract.getSum() * currency.getExchangeRate());
+            accountRepository.save(cashAccount);
 
-        currentAccount.setDebit(currentAccount.getDebit() - contract.getSum());
-        accountRepository.save(currentAccount);
+            currentAccount.setDebit(currentAccount.getDebit() - contract.getSum());
+            accountRepository.save(currentAccount);
 
-        operation = new OperationHistory(
-                contract.getCurrentAccountId(),
-                cashAccount.getId(),
-                contract.getSum(),
-                "Перевод депозита в кассу",
-                currentDate,
-                contract.getCurrencyId());
-        operationHistoryRepository.save(operation);
+            operation = new OperationHistory(
+                    contract.getCurrentAccountId(),
+                    cashAccount.getId(),
+                    contract.getSum(),
+                    "Перевод депозита в кассу",
+                    currentDate,
+                    contract.getCurrencyId());
+            operationHistoryRepository.save(operation);
 
-        //Вывод денег из кассы
-        cashAccount.setCredit(cashAccount.getCredit() - contract.getSum() * currency.getExchangeRate());
-        accountRepository.save(cashAccount);
+            //Вывод денег из кассы
+            cashAccount.setCredit(cashAccount.getCredit() - contract.getSum() * currency.getExchangeRate());
+            accountRepository.save(cashAccount);
 
-        operation = new OperationHistory(
-                cashAccount.getId(),
-                0,
-                contract.getSum(),
-                "Вывод денег из кассы",
-                currentDate,
-                contract.getCurrencyId());
-        operationHistoryRepository.save(operation);
+            operation = new OperationHistory(
+                    cashAccount.getId(),
+                    0,
+                    contract.getSum(),
+                    "Вывод денег из кассы",
+                    currentDate,
+                    contract.getCurrencyId());
+            operationHistoryRepository.save(operation);
+        }
     }
 
     public String getToday() {
@@ -473,7 +479,7 @@ private final AccountRepository accountRepository;
                 currentDate,
                 contract.getCurrencyId());
         operationHistoryRepository.save(operation);
-
+/*
         //Перевод кредита в кассу
         cashAccount.setDebit(cashAccount.getDebit() + contract.getSum() * currency.getExchangeRate());
         accountRepository.save(cashAccount);
@@ -501,7 +507,53 @@ private final AccountRepository accountRepository;
                 "Получение кредита через кассу",
                 currentDate,
                 contract.getCurrencyId());
+        operationHistoryRepository.save(operation);*/
+    }
+
+    public boolean withdraw(Card card, double money) {
+        Account account = accountRepository.findByAccountNumber(card.getAccountNumber());
+
+        if(account.getSaldo() +account.getCredit() + account.getDebit() < money){
+            return false;
+        }
+        Account cashAccount = accountRepository.findByAccountNumber("7327000000000");
+
+        Optional<Contract> contract = contractRepository.findByCurrentAccountId(account.getId());
+        if(!contract.isPresent()) {
+            contract = contractRepository.findByPersentAccountId(account.getId());
+        }
+
+        Currency currency = currencyRepository.findById(contract.get().getCurrencyId()).get();
+        //Перевод денег в кассу(банкомат)
+        cashAccount.setDebit(cashAccount.getDebit() + money / currency.getExchangeRate());
+        accountRepository.save(cashAccount);
+
+        account.setCredit(account.getCredit() - money);
+        accountRepository.save(account);
+
+        OperationHistory operation = new OperationHistory(
+                account.getId(),
+                cashAccount.getId(),
+                money,
+                "Перевод денег в кассу(банкомат)",
+                currentDate,
+                contract.get().getCurrencyId());
+
         operationHistoryRepository.save(operation);
+
+        //Получение кредита через кассу
+        cashAccount.setCredit(cashAccount.getCredit() - money / currency.getExchangeRate());
+        accountRepository.save(cashAccount);
+
+        operation = new OperationHistory(
+                cashAccount.getId(),
+                0,
+                money,
+                "Получение кредита через кассу",
+                currentDate,
+                contract.get().getCurrencyId());
+        operationHistoryRepository.save(operation);
+        return true;
     }
 
     public List<OperationHistoryDTO> getOperationHistoryByContract(Long id) {
@@ -513,5 +565,56 @@ private final AccountRepository accountRepository;
         operationHistories.addAll(operationHistoryRepository.findAllByToAccount(contract.getPersentAccountId()));
 
         return  operationHistories.stream().map(operationHistoryMappingUtils::mapToDto).sorted((a, b) -> a.getDate().compareToIgnoreCase(b.getDate())).collect(Collectors.toList());
+    }
+
+    public boolean payMobile(Card card, String mobile, String mobileNumber, double money) {
+        Account account = accountRepository.findByAccountNumber(card.getAccountNumber());
+
+        if(account.getSaldo() +account.getCredit() + account.getDebit() < money){
+            return false;
+        }
+        Account mobileAccount = this.getMobileAccount(mobile);
+
+        Optional<Contract> contract = contractRepository.findByCurrentAccountId(account.getId());
+        if(!contract.isPresent()) {
+            contract = contractRepository.findByPersentAccountId(account.getId());
+        }
+
+        Currency currency = currencyRepository.findById(contract.get().getCurrencyId()).get();
+        //Перевод денег мобильному оператору
+        mobileAccount.setDebit(account.getDebit() + money / currency.getExchangeRate());
+        accountRepository.save(mobileAccount);
+
+        account.setCredit(account.getCredit() - money);
+        accountRepository.save(account);
+
+        OperationHistory operation = new OperationHistory(
+                account.getId(),
+                mobileAccount.getId(),
+                money,
+                "Перевод денег мобильному оператору на номер " + mobileNumber,
+                currentDate,
+                contract.get().getCurrencyId());
+
+        operationHistoryRepository.save(operation);
+
+        return true;
+    }
+
+    private Account getMobileAccount(String mobile) {
+        Account account;
+        switch (mobile){
+            case "A1":
+                account = accountRepository.findByAccountNumber("1010000000001");
+                break;
+            case "МТС":
+                account = accountRepository.findByAccountNumber("1010000000002");
+                break;
+            default:
+                account = accountRepository.findByAccountNumber("1010000000003");
+                break;
+        }
+
+        return account;
     }
 }

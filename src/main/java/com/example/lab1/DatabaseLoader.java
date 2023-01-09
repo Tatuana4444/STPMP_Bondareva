@@ -24,9 +24,10 @@ public class DatabaseLoader implements CommandLineRunner {
     private final CurrencyRepository currencyRepository;
     private final AccountRepository accountRepository;
     private final ContractService contractService;
+    private final ConfigRepository configRepository;
 
     @Autowired
-    public DatabaseLoader(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository, UserRepository userRepository, AccountTypeRepository accountTypeRepository, ContractTypeRepository contractTypeRepository, CurrencyRepository currencyRepository, AccountRepository accountRepository, ContractService contractService) {
+    public DatabaseLoader(CityRepository cityRepository, FamilyStatusRepository familyStatusRepository, InvalidityRepository invalidityRepository, NationalityRepository nationalityRepository, UserRepository userRepository, AccountTypeRepository accountTypeRepository, ContractTypeRepository contractTypeRepository, CurrencyRepository currencyRepository, AccountRepository accountRepository, ContractService contractService, ConfigRepository configRepository) {
         this.cityRepository = cityRepository;
         this.familyStatusRepository = familyStatusRepository;
         this.invalidityRepository = invalidityRepository;
@@ -37,6 +38,7 @@ public class DatabaseLoader implements CommandLineRunner {
         this.currencyRepository = currencyRepository;
         this.accountRepository = accountRepository;
         this.contractService = contractService;
+        this.configRepository = configRepository;
     }
 
     public void init()
@@ -50,12 +52,16 @@ public class DatabaseLoader implements CommandLineRunner {
         initAccountTypes();
         initCurrencies();
         initAccount();
-        initDeposits();
+        initContacts();
+        initConfig();
     }
 
-    private void initDeposits() {
-        Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.DATE, 7);
+    private void initConfig() {
+        Config config = new Config(0L, false);
+        configRepository.save(config);
+    }
+
+    private void initContacts() {
         ContractDTO contract = new ContractDTO(
                 0L,
                 "2023-01-08",
@@ -68,31 +74,6 @@ public class DatabaseLoader implements CommandLineRunner {
                 "",
                 "");
         contractService.createContract(contract);
-        /*contract = new ContractDTO(
-                0L,
-                "2023-01-08",
-                "2023-01-15",
-                "Депозит отзывный",
-                "Бондарева Татьяна Олеговна",
-                "Br",
-                10000,
-                10,
-                "",
-                "");
-        contractService.createContract(contract);
-       /* ContractDTO contract = new ContractDTO(
-                0L,
-                "2023-01-08",
-                "2023-02-08",
-                "Депозит отзывный",
-                "Бондарева Татьяна Олеговна",
-                "Br",
-                10000,
-                10,
-                "",
-                "");
-        contractService.createContract(contract);
-
         contract = new ContractDTO(
                 0L,
                 "2023-01-08",
@@ -104,7 +85,103 @@ public class DatabaseLoader implements CommandLineRunner {
                 10,
                 "",
                 "");
-        contractService.createContract(contract);*/
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-01-15",
+                "Кредит аннуитетный",
+                "Романов Александр Викторович",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-12-08",
+                "Кредит аннуитетный",
+                "Кирюк Вадим Максимович",
+                "Br",
+                50000,
+                8,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2024-01-08",
+                "Кредит аннуитетный",
+                "Воранко Ксения Дмитриевна",
+                "Br",
+                100000,
+                15,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-01-15",
+                "Депозит отзывный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-02-08",
+                "Депозит отзывный",
+                "Бондарева Татьяна Олеговна",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-01-15",
+                "Депозит отзывный",
+                "Романов Александр Викторович",
+                "Br",
+                10000,
+                10,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2023-12-08",
+                "Депозит отзывный",
+                "Кирюк Вадим Максимович",
+                "Br",
+                50000,
+                8,
+                "",
+                "");
+        contractService.createContract(contract);
+        contract = new ContractDTO(
+                0L,
+                "2023-01-08",
+                "2024-01-08",
+                "Депозит отзывный",
+                "Воранко Ксения Дмитриевна",
+                "Br",
+                100000,
+                15,
+                "",
+                "");
+        contractService.createContract(contract);
     }
 
     private void initAccount() {
@@ -124,6 +201,30 @@ public class DatabaseLoader implements CommandLineRunner {
                 0,
                 100000000000.0);
         accountRepository.save(cashAccount);
+        Account MTCAccount = new Account(
+                accountTypeRepository.findByName("Пассивный").getId(),
+                "1010000000001",
+                "1724",
+                0,
+                0,
+                100000000000.0);
+        accountRepository.save(MTCAccount);
+        Account A1Account = new Account(
+                accountTypeRepository.findByName("Пассивный").getId(),
+                "1010000000002",
+                "1724",
+                0,
+                0,
+                100000000000.0);
+        accountRepository.save(A1Account);
+        Account lifeAccount = new Account(
+                accountTypeRepository.findByName("Пассивный").getId(),
+                "1010000000003",
+                "1724",
+                0,
+                0,
+                100000000000.0);
+        accountRepository.save(lifeAccount);
     }
 
     @Override

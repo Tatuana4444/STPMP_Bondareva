@@ -3,6 +3,7 @@ package com.example.lab1.service;
 import com.example.lab1.dto.AccountDTO;
 import com.example.lab1.exceptions.ResourceNotFoundException;
 import com.example.lab1.model.Account;
+import com.example.lab1.model.Card;
 import com.example.lab1.repositories.*;
 import com.example.lab1.utils.AccountMappingUtils;
 import com.example.lab1.utils.IMappingUtils;
@@ -19,12 +20,20 @@ public class AccountService {
 
     private final IMappingUtils<Account, AccountDTO> accountMappingUtils;
 
+    private final CardRepository cardRepository;
+
+    private final CardService cardService;
+
     @Autowired
     public AccountService(AccountRepository accountRepository,
                           ContractRepository contractRepository,
                           AccountTypeRepository accountTypeRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          CardRepository cardRepository,
+                          CardService cardService) {
         this.accountRepository = accountRepository;
+        this.cardRepository = cardRepository;
+        this.cardService = cardService;
         this.accountMappingUtils = new AccountMappingUtils(accountTypeRepository, contractRepository, userRepository);
     }
 
@@ -33,6 +42,10 @@ public class AccountService {
 
         Account account = accountMappingUtils.mapToEntity(accountDTO);
         Account savedAccount = this.accountRepository.save(account);
+
+        Card card = new Card(0L, cardService.generateCardNumber(), cardService.generatePIN(), savedAccount.getAccountNumber());
+        cardRepository.save(card);
+        System.out.println("Ката создана");
         return accountMappingUtils.mapToDto(savedAccount);
     }
 

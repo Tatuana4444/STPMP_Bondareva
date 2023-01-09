@@ -37,6 +37,8 @@ export default class AppNavbar extends Component {
                                 <Nav.Link href="/#/agreements/">Контракты</Nav.Link>
                                 <Nav.Link href="/#/accounts/">Счета</Nav.Link>
                                 <Nav.Link href="/#/operations/">Операции</Nav.Link>
+                                <Nav.Link href="/#/cards/">Карты</Nav.Link>
+                                <Nav.Link href="/#/ATM/">Банкомат</Nav.Link>
                                 <Nav.Link onClick={() => this.closeDay()}>Закончить день</Nav.Link>
                             </Nav>
                         </Offcanvas.Body>

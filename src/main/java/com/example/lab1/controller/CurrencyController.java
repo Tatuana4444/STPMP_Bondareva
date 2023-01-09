@@ -26,7 +26,7 @@ public class CurrencyController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Currency>> getCities(){
+    public ResponseEntity<List<Currency>> getCurrencies(){
         return ResponseEntity.ok(
                 this.currencyRepository.findAll()
         );

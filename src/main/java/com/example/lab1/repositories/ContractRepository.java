@@ -3,8 +3,10 @@ package com.example.lab1.repositories;
 import com.example.lab1.model.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ContractRepository extends JpaRepository<Contract,Long> {
-    Contract findByCurrentAccountId(long currentAccountId);
+import java.util.Optional;
 
-    Contract findByPersentAccountId(long persentAccountId);
+public interface ContractRepository extends JpaRepository<Contract,Long> {
+    Optional<Contract> findByCurrentAccountId(long currentAccountId);
+
+    Optional<Contract> findByPersentAccountId(long persentAccountId);
 }
